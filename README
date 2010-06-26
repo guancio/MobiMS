@@ -31,6 +31,19 @@ Current Status:
 ** Minimal interface to start and shutdown the server
 
 * Features that will never be implemented using the current architecture
-** Support MMS (PyS60 bug https://garage.maemo.org/tracker/index.php?func=detail&aid=4197&group_id=854&atid=3201 does not allow do access MMS attachment content)
+** Support MMS (PyS60 bug https://garage.maemo.org/tracker/index.php?func=detail&aid=4197&group_id=854&atid=3201 does not allow to access MMS attachment content)
 ** Support Folders (PyS60 allow only accessing INBOX folder)
 ** Upload message (PyS60 does not provide a suitable API)
+
+Requirements:
+Python run-time on your mobile phone
+A TCP/Bluetooth proxy (a very dummy proxy is implemented by proxy.py)
+
+Installation:
+Copy the phone_imap.py script on your phone python directory (on my N97 it is E:/data/python).
+
+Usage:
+Start python interpreter on your phone and run the script.
+The script manages only a desktop connection and after the conversation it quits.
+You need to manually restart the script to handle a further connection.
+
