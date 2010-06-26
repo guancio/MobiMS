@@ -16,19 +16,21 @@ be implemented using C++.
 
 Current Status:
 * Supported clients
-** offlineimap
+** IMAP: offlineimap
+** SMTP: Emacs Wanderlust
 * Supported mobile phones
 ** Symbian s60 5th edition (N97)
 * Email protocols:
-** IMAP
+** IMAP/SMTP
 * Features:
 ** Download the list and details of all SMS
 ** Change read status of a SMS
+** Send SMS using SMTP
 
 * Planned Features/bugs
-** Support SMTP to send SMS
 ** Support deletion of messages
 ** Minimal interface to start and shutdown the server
+** Handling errors
 
 * Features that will never be implemented using the current architecture
 ** Support MMS (PyS60 bug https://garage.maemo.org/tracker/index.php?func=detail&aid=4197&group_id=854&atid=3201 does not allow to access MMS attachment content)
