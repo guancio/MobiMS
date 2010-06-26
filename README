@@ -1,0 +1,36 @@
+MobiMS -- Mobile Mail Server
+
+MobiMS is a mailserver for mobile devices. The main goal of the project
+is to allow desktop software to access to your phone SMS/MMS facilities
+exploiting standard email protocols (IMAP and SMTP).
+
+MobiMS has been developed to allow managing my phone SMS using "standard"
+email clients (not so standard, since I use offlineimap + emace + wanderlust).
+
+MobiMS is simply a prototype, not a full feature IMAP/SMTP server. It
+is not really compliant with rfc specifications. Only minimal parts of the
+protocols have been implemented, focusing compatibility with specific client.
+
+This prototype have been implemented using python. A future "real" sofware will
+be implemented using C++.
+
+Current Status:
+* Supported clients
+** offlineimap
+* Supported mobile phones
+** Symbian s60 5th edition (N97)
+* Email protocols:
+** IMAP
+* Features:
+** Download the list and details of all SMS
+** Change read status of a SMS
+
+* Planned Features/bugs
+** Support SMTP to send SMS
+** Support deletion of messages
+** Minimal interface to start and shutdown the server
+
+* Features that will never be implemented using the current architecture
+** Support MMS (PyS60 bug https://garage.maemo.org/tracker/index.php?func=detail&aid=4197&group_id=854&atid=3201 does not allow do access MMS attachment content)
+** Support Folders (PyS60 allow only accessing INBOX folder)
+** Upload message (PyS60 does not provide a suitable API)
