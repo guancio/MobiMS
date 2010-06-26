@@ -77,7 +77,7 @@ class SmtpConversation(object):
     def hRcpt(self, args):
         flag, mail = args[0].split(":")
         if flag == "TO":
-            self.__curr_mail["TO"].append(mail)
+            self.__curr_mail["TO"].append(mail[1:-1])
         else:
             print "RCPT %s not supported" % flag
             return False

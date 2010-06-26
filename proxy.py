@@ -3,7 +3,7 @@ from bluetooth import *
 from threading import *
 
 HOST = ''                 # Symbolic name meaning all available interfaces
-PORT = 14310
+PORT = 25000
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((HOST, PORT))
@@ -12,8 +12,8 @@ s.listen(1)
 conn, addr = s.accept()
 
 try:
-    s1=BluetoothSocket( RFCOMM )
-    s1.connect(("00:26:CC:70:34:13", 12))
+    s1=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s1.connect(("mail.netfarm.it", 25))
 
     class Server(Thread):
         def run(self):
