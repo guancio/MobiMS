@@ -46,4 +46,11 @@ Usage:
 Start python interpreter on your phone and run the script.
 The script manages only a desktop connection and after the conversation it quits.
 You need to manually restart the script to handle a further connection.
+User and password are fixed and are guancio/guancio.
 
+Currently MobiMS exploit Bluetooth for desktop/phone communications. Allowing
+a standard mail client to connect to your MobiMS requires a proxy that
+forwards TCP connections to Bluetooth serial port. A very dummy proxy
+is provided by the proxy.py script, that must be executed on your desktop.
+
+Please send me suggestions/critiques/help.
