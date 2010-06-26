@@ -2,6 +2,10 @@ import socket
 import sys
 import base64
 import email
+import btsocket
+import scriptext
+
+messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
 
 class SmtpConversation(object):
     def __init__(self, conn):
@@ -93,25 +97,36 @@ class SmtpConversation(object):
         print "END DATA"
         msg = email.message_from_string(self.__curr_mail["DATA"])
         print self.__curr_mail["TO"]
-        if not msg.is_multipart() :
-            print msg.get_payload()
-        else:
+        if msg.is_multipart() :
             print "Mail format not supported"
             self.__curr_mail = None
             self.__conn.send("451 Requested action aborted: error in processing\r\n")
             return False
+        for number in self.__curr_mail["TO"]:
+            messaging_handle.call('Send',
+                                  {'MessageType': u'SMS',
+                                   'To': u'%s' % number,
+                                   'BodyText': u'%s' % msg.get_payload()})
         self.__conn.send("250 sent %d SMS\r\n" % len(self.__curr_mail["TO"]))
+        self.__curr_mail = None
         return True
 
     def hQuit(self, args):
         self.__conn.send("221 Bye\r\n")
         return False
 
-HOST = ''
-PORT = 25000
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind((HOST, PORT))
+# HOST = ''
+# PORT = 25000
+# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+# s.bind((HOST, PORT))
+# s.listen(1)
+
+s=btsocket.socket(btsocket.AF_BT, btsocket.SOCK_STREAM)
+port = btsocket.bt_rfcomm_get_available_server_channel(s)
+s.bind(("", port))
+print port
+btsocket.set_security(s, btsocket.AUTH)
 s.listen(1)
 
 running = True

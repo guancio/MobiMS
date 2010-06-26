@@ -12,8 +12,10 @@ s.listen(1)
 conn, addr = s.accept()
 
 try:
-    s1=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s1.connect(("mail.netfarm.it", 25))
+    #s1=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #s1.connect(("mail.netfarm.it", 25))
+    s1=BluetoothSocket( RFCOMM )
+    s1.connect(("00:26:CC:70:34:13", 12))
 
     class Server(Thread):
         def run(self):
