@@ -7,6 +7,7 @@ import scriptext
 
 messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
 
+
 class SmtpConversation(object):
     def __init__(self, conn):
         self.__conn = conn
