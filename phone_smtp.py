@@ -4,9 +4,7 @@ import base64
 import email
 import btsocket
 import scriptext
-
-messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
-
+import e32
 
 class SmtpConversation(object):
     def __init__(self, conn):
@@ -123,16 +121,41 @@ class SmtpConversation(object):
 # s.bind((HOST, PORT))
 # s.listen(1)
 
-s=btsocket.socket(btsocket.AF_BT, btsocket.SOCK_STREAM)
-port = btsocket.bt_rfcomm_get_available_server_channel(s)
-s.bind(("", port))
-print port
-btsocket.set_security(s, btsocket.AUTH)
-s.listen(1)
+class SmtpServer():
+    def __init__(self):
+        self.ready = False
+        self.running = False
+        self.port = None
+        self.messaging_handle = None
+        self.__subscriber = None
+        self.__operation = None
+        self.__lock = e32.Ao_lock()
 
-running = True
-while running:
-    conn, addr = s.accept()
-    SmtpConversation(conn).handle()
-    running = False
-s.close()
+    def subscribe(self, subscriber):
+        self.__subscriber = subscriber
+
+    def run(self):
+        self.messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
+        self.ready = True
+        self.subscriber.notify()
+        
+        while True:
+            self.lock.wait()
+            if not self.__operation == "START":
+                continue
+
+            s=btsocket.socket(btsocket.AF_BT, btsocket.SOCK_STREAM)
+            self.port = btsocket.bt_rfcomm_get_available_server_channel(s)
+            s.bind(("", self.port))
+            btsocket.set_security(s, btsocket.AUTH)
+            s.listen(1)
+
+            self.running = True
+            self.__subscriber.notify()
+            
+            conn, addr = s.accept()
+            #SmtpConversation(conn).handle()
+            conn.close()
+            s.close()
+            self.running = False
+            self.__subscriber.notify()
