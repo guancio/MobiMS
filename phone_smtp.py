@@ -1,18 +1,40 @@
-import socket
 import sys
 import base64
 import email
-import btsocket
-import scriptext
 
-messaging_handle = scriptext.load('Service.Messaging', 'IMessaging')
 
+class SmtpService():
+    def __init__(self):
+        pass
+
+class SmsService(SmtpService):
+    def __init__(self):
+        import scriptext
+        self.__messaging_handle = scriptext.load('Service.Messaging', 'iMessaging')
+    def self(self, msg, addresses):
+        for addr in addresses:
+            self.__messaging_handle.call('Send',
+                                         {'MessageType': u'SMS',
+                                          'To': u'%s' % addr,
+                                          'BodyText': u'%s' % msg.get_payload()})
+        return 0
+
+class FsService(SmtpService):
+    def __init__(self):
+        pass
+    def send(self, msg, addresses):
+        import time
+        for addr in addresses:
+            f = open("/tmp/%d.%s" % (time.time(), addr), "w")
+            f.write(msg.as_string())
+            f.close()
 
 class SmtpConversation(object):
-    def __init__(self, conn):
+    def __init__(self, conn, server):
         self.__conn = conn
         self.__buffer = ""
         self.__curr_mail = None
+        self.__server = server
 
     def handle(self):
         res = self.hHelo()
@@ -103,11 +125,7 @@ class SmtpConversation(object):
             self.__curr_mail = None
             self.__conn.send("451 Requested action aborted: error in processing\r\n")
             return False
-        for number in self.__curr_mail["TO"]:
-            messaging_handle.call('Send',
-                                  {'MessageType': u'SMS',
-                                   'To': u'%s' % number,
-                                   'BodyText': u'%s' % msg.get_payload()})
+        self.__server.get_service().send(msg, self.__curr_mail['TO'])
         self.__conn.send("250 sent %d SMS\r\n" % len(self.__curr_mail["TO"]))
         self.__curr_mail = None
         return True
@@ -117,30 +135,59 @@ class SmtpConversation(object):
         return False
 
 class SmtpServer:
-    def __init__(self):
-       pass
+    BT, WIFI = range(2)
+    SMS, FS = range(2)
 
-   def run(self):
-     # HOST = ''
-     # PORT = 25000
-     # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-     # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-     # s.bind((HOST, PORT))
-     # s.listen(1)
+    def __init__(self, method, service):
+        self.__method = method
+        if self.__method == SmtpServer.BT:
+            import btsocket
+            self.__sock_pkg = btsocket
+        if self.__method == SmtpServer.WIFI:
+            import socket
+            self.__sock_pkg = socket
 
-     s=btsocket.socket(btsocket.AF_BT, btsocket.SOCK_STREAM)
-     port = btsocket.bt_rfcomm_get_available_server_channel(s)
-     s.bind(("", port))
-     print port
-     btsocket.set_security(s, btsocket.AUTH)
-     s.listen(1)
+        self.__service = None
+        if service == SmtpServer.SMS:
+            self.__service = SmsService()
+        elif service == SmtpServer.FS:
+            self.__service = FsService()
 
-     running = True
-     while running:
-         conn, addr = s.accept()
-         SmtpConversation(conn).handle()
-         running = False
-    s.close()
+    def run(self):
+        s = None
+        if self.__method == SmtpServer.WIFI:
+            s = self.__sock_pkg.socket(self.__sock_pkg.AF_INET, self.__sock_pkg.SOCK_STREAM)
+            s.setsockopt(self.__sock_pkg.SOL_SOCKET, self.__sock_pkg.SO_REUSEADDR, 1)
+            s.bind(('', 25000))
+        if self.__method == SmtpServer.BT:
+            s=self.__sock_pkg.socket(self.__sock_pkg.AF_BT, self.__sock_pkg.SOCK_STREAM)
+            port = self.__sock_pkg.bt_rfcomm_get_available_server_channel(s)
+            s.bind(("", port))
+            print port
+            self.__sock_pkg.set_security(s, self.__sock_pkg.AUTH)
+        s.listen(1)
 
-server = SmtpServer()
+        running = True
+        while running:
+            conn, addr = s.accept()
+            SmtpConversation(conn, self).handle()
+            running = False
+        s.close()
+
+    def get_service(self):
+        return self.__service
+
+method = SmtpServer.BT
+service = SmtpServer.SMS
+for arg in sys.argv:
+    if arg == "--bt":
+        method = SmtpServer.BT
+    elif arg == "--wifi":
+        method = SmtpServer.WIFI
+    elif arg == "--sms":
+        service = SmtpServer.SMS
+    elif arg == "--fs":
+        service = SmtpServer.FS
+
+server = SmtpServer(method, service)
 server.run()
