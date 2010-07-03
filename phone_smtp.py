@@ -116,23 +116,31 @@ class SmtpConversation(object):
         self.__conn.send("221 Bye\r\n")
         return False
 
-# HOST = ''
-# PORT = 25000
-# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# s.bind((HOST, PORT))
-# s.listen(1)
+class SmtpServer:
+    def __init__(self):
+       pass
 
-s=btsocket.socket(btsocket.AF_BT, btsocket.SOCK_STREAM)
-port = btsocket.bt_rfcomm_get_available_server_channel(s)
-s.bind(("", port))
-print port
-btsocket.set_security(s, btsocket.AUTH)
-s.listen(1)
+   def run(self):
+     # HOST = ''
+     # PORT = 25000
+     # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+     # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+     # s.bind((HOST, PORT))
+     # s.listen(1)
 
-running = True
-while running:
-    conn, addr = s.accept()
-    SmtpConversation(conn).handle()
-    running = False
-s.close()
+     s=btsocket.socket(btsocket.AF_BT, btsocket.SOCK_STREAM)
+     port = btsocket.bt_rfcomm_get_available_server_channel(s)
+     s.bind(("", port))
+     print port
+     btsocket.set_security(s, btsocket.AUTH)
+     s.listen(1)
+
+     running = True
+     while running:
+         conn, addr = s.accept()
+         SmtpConversation(conn).handle()
+         running = False
+    s.close()
+
+server = SmtpServer()
+server.run()
